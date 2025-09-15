@@ -14,7 +14,7 @@ El proyecto espera un archivo `Ves.UI/appsettings.json` con el siguiente formato
 }
 ```
 
-Cada cadena de conexión se utiliza para crear instancias de `SqlConnectionFactory`. El archivo se busca en el directorio base de la aplicación, por lo que debe encontrarse junto al ejecutable.
+Cada cadena de conexión se utiliza para crear instancias de `SqlConnectionFactory`. El archivo se busca en el directorio base de la aplicación, por lo que debe encontrarse junto al ejecutable. El proyecto copia automáticamente `appsettings.json` a la carpeta de salida en cada compilación, de modo que no es necesario moverlo manualmente.
 
 ## Resolver "no se puede encontrar Ves.UI.exe" en Visual Studio
 
