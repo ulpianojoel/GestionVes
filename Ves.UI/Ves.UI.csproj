@@ -1,0 +1,11 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="../Ves.BLL/Ves.BLL.csproj" />
+    <ProjectReference Include="../Ves.Domain/Ves.Domain.csproj" />
+    <ProjectReference Include="../Ves.Services/Ves.Services.csproj" />
+  </ItemGroup>
+</Project>
