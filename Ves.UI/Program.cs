@@ -1,5 +1,5 @@
 using System.IO;
-using System.Text.Json;
+using Microsoft.Extensions.Configuration;
 using Ves.BLL.Services;
 using Ves.DAL.Data;
 using Ves.Domain.Configuration;
@@ -52,35 +52,14 @@ internal static class Program
 
         try
         {
-            using FileStream stream = File.OpenRead(configPath);
-            using JsonDocument document = JsonDocument.Parse(stream);
+            var configuration = new ConfigurationBuilder()
+                .SetBasePath(baseDirectory)
+                .AddJsonFile(AppSettingsFileName, optional: false, reloadOnChange: false)
+                .Build();
 
-            if (!document.RootElement.TryGetProperty("ConnectionStrings", out JsonElement connectionStrings))
-            {
-                Console.Error.WriteLine("El archivo de configuración debe incluir la sección ConnectionStrings.");
-                options = null!;
-                return false;
-            }
-
-            if (!TryReadConnectionString(connectionStrings, "Business", out string? business, out string? readError))
-            {
-                if (!string.IsNullOrEmpty(readError))
-                {
-                    Console.Error.WriteLine(readError);
-                }
-                options = null!;
-                return false;
-            }
-
-            if (!TryReadConnectionString(connectionStrings, "Hash", out string? hash, out readError))
-            {
-                if (!string.IsNullOrEmpty(readError))
-                {
-                    Console.Error.WriteLine(readError);
-                }
-                options = null!;
-                return false;
-            }
+            var connectionStrings = configuration.GetSection("ConnectionStrings");
+            var business = connectionStrings["Business"];
+            var hash = connectionStrings["Hash"];
 
             if (!DatabaseConnectionOptions.TryCreate(business, hash, out options, out string? validationError))
             {
@@ -91,7 +70,12 @@ internal static class Program
 
             return true;
         }
-        catch (JsonException ex)
+        catch (FileNotFoundException)
+        {
+            Console.Error.WriteLine($"No se encontró '{AppSettingsFileName}' en '{baseDirectory}'.");
+            Console.Error.WriteLine("Copiá el archivo de configuración junto al ejecutable o actualizá la ruta de salida.");
+        }
+        catch (FormatException ex)
         {
             Console.Error.WriteLine($"El archivo '{AppSettingsFileName}' no tiene un formato JSON válido: {ex.Message}");
         }
@@ -101,27 +85,6 @@ internal static class Program
         }
 
         options = null!;
-        return false;
-    }
-
-    private static bool TryReadConnectionString(JsonElement connectionStrings, string name, out string? value, out string? errorMessage)
-    {
-        if (!connectionStrings.TryGetProperty(name, out JsonElement element) || element.ValueKind == JsonValueKind.Null)
-        {
-            value = null;
-            errorMessage = null;
-            return true;
-        }
-
-        if (element.ValueKind == JsonValueKind.String)
-        {
-            value = element.GetString();
-            errorMessage = null;
-            return true;
-        }
-
-        value = null;
-        errorMessage = $"ConnectionStrings:{name} debe ser una cadena.";
         return false;
     }
 
