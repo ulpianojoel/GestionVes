@@ -1,6 +1,6 @@
 using System;
 using System.IO;
-using Microsoft.Extensions.Configuration;
+using System.Text.Json;
 using Ves.BLL.Services;
 using Ves.DAL.Data;
 using Ves.Domain.Configuration;
@@ -53,14 +53,18 @@ internal static class Program
 
         try
         {
-            var configuration = new ConfigurationBuilder()
-                .SetBasePath(baseDirectory)
-                .AddJsonFile(AppSettingsFileName, optional: false, reloadOnChange: false)
-                .Build();
+            using FileStream stream = File.OpenRead(configPath);
+            using JsonDocument document = JsonDocument.Parse(stream);
 
-            var connectionStrings = configuration.GetSection("ConnectionStrings");
-            var business = connectionStrings["Business"];
-            var hash = connectionStrings["Hash"];
+            if (!document.RootElement.TryGetProperty("ConnectionStrings", out JsonElement connectionStrings))
+            {
+                Console.Error.WriteLine("El archivo de configuración no contiene la sección 'ConnectionStrings'.");
+                options = null!;
+                return false;
+            }
+
+            string? business = TryReadString(connectionStrings, "Business");
+            string? hash = TryReadString(connectionStrings, "Hash");
 
             if (!DatabaseConnectionOptions.TryCreate(business, hash, out options, out string? validationError))
             {
@@ -71,12 +75,7 @@ internal static class Program
 
             return true;
         }
-        catch (FileNotFoundException)
-        {
-            Console.Error.WriteLine($"No se encontró '{AppSettingsFileName}' en '{baseDirectory}'.");
-            Console.Error.WriteLine("Copiá el archivo de configuración junto al ejecutable o actualizá la ruta de salida.");
-        }
-        catch (FormatException ex)
+        catch (JsonException ex)
         {
             Console.Error.WriteLine($"El archivo '{AppSettingsFileName}' no tiene un formato JSON válido: {ex.Message}");
         }
@@ -87,6 +86,13 @@ internal static class Program
 
         options = null!;
         return false;
+    }
+
+    private static string? TryReadString(JsonElement parent, string propertyName)
+    {
+        return parent.TryGetProperty(propertyName, out JsonElement element) && element.ValueKind == JsonValueKind.String
+            ? element.GetString()
+            : null;
     }
 
     private static bool TryEnsureFactory(StartupDiagnosticsService diagnostics, string name, out ISqlConnectionFactory factory)

@@ -7,7 +7,7 @@ Sistema de gestión estructurado en varias capas.
 - **Ves.DAL**: expone fábricas de conexiones a SQL Server.
 - **Ves.BLL**: registra las fábricas disponibles a partir de la configuración cargada.
 - **Ves.Services**: ofrece servicios de diagnóstico y utilidades reutilizables por la UI.
-- **Ves.UI**: aplicación de consola que inicializa la configuración y muestra el estado de las conexiones.
+- **Ves.UI**: aplicación de consola que inicializa la configuración, valida las cadenas cargadas y muestra el estado de las conexiones.
 
 ## Configuración requerida
 El proyecto espera un archivo `Ves.UI/appsettings.json` con el siguiente formato:
@@ -21,7 +21,7 @@ El proyecto espera un archivo `Ves.UI/appsettings.json` con el siguiente formato
 }
 ```
 
-El archivo se busca en el directorio base de la aplicación, por lo que debe encontrarse junto al ejecutable. La compilación copia automáticamente `appsettings.json` a la carpeta de salida. Si falta el archivo, la sección `ConnectionStrings` o alguna de las claves `Business`/`Hash`, la aplicación mostrará un mensaje descriptivo y finalizará con un código distinto de cero.
+El archivo se busca en el directorio base de la aplicación, por lo que debe encontrarse junto al ejecutable. La compilación copia automáticamente `appsettings.json` a la carpeta de salida. El programa lo lee con `System.Text.Json`, así que no requiere paquetes NuGet adicionales. Si falta el archivo, la sección `ConnectionStrings` o alguna de las claves `Business`/`Hash`, la aplicación mostrará un mensaje descriptivo y finalizará con un código distinto de cero.
 
 ## Restaurar y compilar
 1. **Restaurar dependencias** (soluciona el error `project.assets.json` no encontrado):
@@ -36,6 +36,8 @@ El archivo se busca en el directorio base de la aplicación, por lo que debe enc
    ```bash
    dotnet run --project Ves.UI/Ves.UI.csproj
    ```
+
+> La solución no referencia paquetes NuGet externos; si la restauración falla, revisá la instalación del SDK de .NET 8 y vuelve a intentar el proceso.
 
 ## Resolver "no se puede encontrar Ves.UI.exe" en Visual Studio
 1. Abrí `GestionVes.sln` y marcá `Ves.UI` como **Startup Project**.
