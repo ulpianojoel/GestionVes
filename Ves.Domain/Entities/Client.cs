@@ -1,3 +1,4 @@
+using System;
 using Ves.Domain.ValueObjects;
 
 namespace Ves.Domain.Entities;
