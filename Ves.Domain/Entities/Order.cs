@@ -22,7 +22,33 @@ public class Order
     /// </summary>
     public void AddItem(OrderDetail detail)
     {
+        if (Details.Count == 0)
+        {
+            Total = new Money(Total.Amount, detail.UnitPrice.Currency);
+        }
+
         Details.Add(detail);
+        RecalculateTotal();
+    }
+
+    /// <summary>
+    /// Allows loading the total amount from persistence while keeping encapsulation.
+    /// </summary>
+    public void LoadTotal(Money total) => Total = total;
+
+    /// <summary>
+    /// Replaces the current set of details with the provided ones without altering totals.
+    /// </summary>
+    public void ReplaceDetails(IEnumerable<OrderDetail> details)
+    {
+        var materialized = details.ToList();
+        Details.Clear();
+        if (materialized.Count > 0)
+        {
+            Total = new Money(Total.Amount, materialized[0].UnitPrice.Currency);
+        }
+
+        Details.AddRange(materialized);
         RecalculateTotal();
     }
 
