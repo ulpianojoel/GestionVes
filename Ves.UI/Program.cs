@@ -1,6 +1,6 @@
 using System;
 using System.IO;
-using System.Text.Json;
+using Microsoft.Extensions.Configuration;
 using Ves.BLL.Services;
 using Ves.DAL.Data;
 using Ves.Domain.Configuration;
@@ -11,10 +11,17 @@ namespace Ves.UI;
 internal static class Program
 {
     private const string AppSettingsFileName = "appsettings.json";
+    private const string BusinessConnectionName = "Business";
+    private const string HashConnectionName = "Hash";
 
     private static int Main(string[] args)
     {
-        if (!TryLoadConnectionOptions(out var options))
+        if (!TryBuildConfiguration(out var configuration))
+        {
+            return 1;
+        }
+
+        if (!TryCreateOptions(configuration, out var options))
         {
             return 1;
         }
@@ -22,12 +29,12 @@ internal static class Program
         var registry = new ConnectionFactoryRegistry(options);
         var diagnostics = new StartupDiagnosticsService(registry);
 
-        if (!TryEnsureFactory(diagnostics, "Business", out var businessFactory))
+        if (!TryEnsureFactory(diagnostics, BusinessConnectionName, out var businessFactory))
         {
             return 1;
         }
 
-        if (!TryEnsureFactory(diagnostics, "Hash", out var hashFactory))
+        if (!TryEnsureFactory(diagnostics, HashConnectionName, out var hashFactory))
         {
             return 1;
         }
@@ -38,61 +45,47 @@ internal static class Program
         return 0;
     }
 
-    private static bool TryLoadConnectionOptions(out DatabaseConnectionOptions options)
+    private static bool TryBuildConfiguration(out IConfiguration configuration)
     {
-        string baseDirectory = AppContext.BaseDirectory;
-        string configPath = Path.Combine(baseDirectory, AppSettingsFileName);
-
-        if (!File.Exists(configPath))
-        {
-            Console.Error.WriteLine($"No se encontró '{AppSettingsFileName}' en '{baseDirectory}'.");
-            Console.Error.WriteLine("Copiá el archivo de configuración junto al ejecutable o actualizá la ruta de salida.");
-            options = null!;
-            return false;
-        }
-
         try
         {
-            using FileStream stream = File.OpenRead(configPath);
-            using JsonDocument document = JsonDocument.Parse(stream);
-
-            if (!document.RootElement.TryGetProperty("ConnectionStrings", out JsonElement connectionStrings))
-            {
-                Console.Error.WriteLine("El archivo de configuración no contiene la sección 'ConnectionStrings'.");
-                options = null!;
-                return false;
-            }
-
-            string? business = TryReadString(connectionStrings, "Business");
-            string? hash = TryReadString(connectionStrings, "Hash");
-
-            if (!DatabaseConnectionOptions.TryCreate(business, hash, out options, out string? validationError))
-            {
-                Console.Error.WriteLine(validationError);
-                options = null!;
-                return false;
-            }
-
+            configuration = new ConfigurationBuilder()
+                .SetBasePath(AppContext.BaseDirectory)
+                .AddJsonFile(AppSettingsFileName, optional: false, reloadOnChange: false)
+                .Build();
             return true;
         }
-        catch (JsonException ex)
+        catch (FileNotFoundException)
         {
-            Console.Error.WriteLine($"El archivo '{AppSettingsFileName}' no tiene un formato JSON válido: {ex.Message}");
+            Console.Error.WriteLine($"No se encontró '{AppSettingsFileName}' junto al ejecutable en '{AppContext.BaseDirectory}'.");
+            Console.Error.WriteLine("Copiá el archivo de configuración o verificá la ruta de salida del proyecto.");
         }
-        catch (IOException ex)
+        catch (FormatException ex)
         {
-            Console.Error.WriteLine($"No se pudo leer '{AppSettingsFileName}': {ex.Message}");
+            Console.Error.WriteLine($"El archivo '{AppSettingsFileName}' tiene un formato inválido: {ex.Message}");
+        }
+        catch (Exception ex)
+        {
+            Console.Error.WriteLine($"No se pudo cargar la configuración: {ex.Message}");
         }
 
-        options = null!;
+        configuration = null!;
         return false;
     }
 
-    private static string? TryReadString(JsonElement parent, string propertyName)
+    private static bool TryCreateOptions(IConfiguration configuration, out DatabaseConnectionOptions options)
     {
-        return parent.TryGetProperty(propertyName, out JsonElement element) && element.ValueKind == JsonValueKind.String
-            ? element.GetString()
-            : null;
+        string? business = configuration.GetConnectionString(BusinessConnectionName);
+        string? hash = configuration.GetConnectionString(HashConnectionName);
+
+        if (DatabaseConnectionOptions.TryCreate(business, hash, out options, out var validationError))
+        {
+            return true;
+        }
+
+        Console.Error.WriteLine(validationError);
+        options = null!;
+        return false;
     }
 
     private static bool TryEnsureFactory(StartupDiagnosticsService diagnostics, string name, out ISqlConnectionFactory factory)
