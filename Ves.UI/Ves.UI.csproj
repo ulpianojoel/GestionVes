@@ -5,6 +5,7 @@
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="../Ves.BLL/Ves.BLL.csproj" />
+    <ProjectReference Include="../Ves.DAL/Ves.DAL.csproj" />
     <ProjectReference Include="../Ves.Domain/Ves.Domain.csproj" />
     <ProjectReference Include="../Ves.Services/Ves.Services.csproj" />
   </ItemGroup>
