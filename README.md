@@ -43,6 +43,13 @@ El archivo se busca en el directorio base de la aplicación, por lo que debe enc
 3. Ejecutá **Build → Clean Solution** y luego **Build → Rebuild Solution**. El panel **Output → Build** debe indicar `Build succeeded`.
 4. Si persiste, cerrá Visual Studio, eliminá las carpetas `bin/` y `obj/` de cada proyecto (`Ves.Domain`, `Ves.DAL`, `Ves.BLL`, `Ves.Services`, `Ves.UI`) y volvé a abrir la solución.
 
+## Errores de compilación "DateTime no se encontró"
+Si Visual Studio muestra mensajes como `El nombre del tipo o del espacio de nombres 'DateTime' no se encontró`, significa que faltan las referencias base del framework.
+
+1. Verificá que tengas instalado el SDK o targeting pack de .NET 8.0. En Visual Studio 2022 se agrega desde **Tools → Get Tools and Features → Individual components → .NET 8.0 Runtime/SDK**.
+2. Alternativamente, instalá el SDK desde la línea de comandos descargándolo de <https://dotnet.microsoft.com/download/dotnet/8.0> y volvé a abrir la solución.
+3. Luego de la instalación, ejecutá `dotnet --info` o `dotnet --list-sdks` para confirmar que el SDK quedó disponible y reconstruí la solución (`dotnet restore`, `dotnet build`).
+
 ## Diagnóstico adicional
 - El mensaje `No se encontró el archivo de recursos ... project.assets.json` desaparece tras ejecutar `dotnet restore GestionVes.sln` o **Restore NuGet Packages** en Visual Studio.
 - Para revisar el estado del arranque sin ejecutar la aplicación, consultá el reporte que imprime la consola. Muestra qué fábricas de conexión fueron registradas a partir del `appsettings.json`.
