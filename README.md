@@ -27,7 +27,7 @@ La UI carga las cadenas de conexión desde `Ves.UI/appsettings.json`:
 }
 ```
 
-El archivo debe residir junto al ejecutable (`bin/<config>/<tfm>/`). La aplicación valida la presencia de ambas claves al iniciar y muestra un mensaje descriptivo si falta alguna.
+El archivo debe residir junto al ejecutable (`bin/<config>/<tfm>/`). La aplicación lo lee mediante `System.Text.Json`, por lo que no requiere paquetes NuGet adicionales, valida la presencia de ambas claves al iniciar y muestra un mensaje descriptivo si falta alguna.
 
 ## Credenciales de demostración
 La capa de UI incluye un servicio simulado (`FakeAuthService`) con usuarios preconfigurados:
@@ -51,7 +51,7 @@ Ingresá con alguno de los usuarios activos para explorar las pantallas.
 La interfaz utiliza diseños con `Grid` y `Border` para adaptarse al tamaño de la ventana y mantener una estética consistente.
 
 ## Restaurar, compilar y ejecutar
-1. **Restaurar dependencias** (soluciona `project.assets.json` faltante):
+1. **Restaurar dependencias** (soluciona `project.assets.json` faltante). No se utilizan paquetes externos, pero el comando garantiza que el SDK genere los archivos de soporte:
    ```bash
    dotnet restore GestionVes.sln
    ```
@@ -76,7 +76,7 @@ La interfaz utiliza diseños con `Grid` y `Border` para adaptarse al tamaño de 
 
 ## Errores comunes y solución
 - **`DateTime` u otros tipos básicos no encontrados**: instalá o repará el SDK/targeting pack de .NET 8 y volvé a ejecutar `dotnet restore` / `dotnet build`.
-- **`project.assets.json` ausente**: ejecutar `dotnet restore GestionVes.sln` o la opción **Restore NuGet Packages** en Visual Studio.
+- **`project.assets.json` ausente**: ejecutar `dotnet restore GestionVes.sln` o la opción **Restore NuGet Packages** en Visual Studio para regenerar los archivos internos del SDK (no se necesitan paquetes externos).
 - **Faltan archivos de referencia (Microsoft.Win32...xml)**: indica una instalación de .NET dañada; reinstalá el SDK de .NET 8 y reiniciá Visual Studio.
 
 ## Bases de datos de ejemplo
