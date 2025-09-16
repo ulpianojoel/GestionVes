@@ -10,6 +10,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ves.Services", "Ves.Service
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ves.BLL", "Ves.BLL\Ves.BLL.csproj", "{74b8fdbd-ffea-4265-ade6-2fb4c07a38d9}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ves.BLL.Tests", "Ves.BLL.Tests\Ves.BLL.Tests.csproj", "{02fec259-a9e7-43ab-84ca-1c7786f099a2}"
+EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ves.UI", "Ves.UI\Ves.UI.csproj", "{f8c29245-5cb6-4ee4-8387-c66bbfd853de}"
 EndProject
 Global
@@ -34,6 +36,10 @@ Global
     {74b8fdbd-ffea-4265-ade6-2fb4c07a38d9}.Debug|Any CPU.Build.0 = Debug|Any CPU
     {74b8fdbd-ffea-4265-ade6-2fb4c07a38d9}.Release|Any CPU.ActiveCfg = Release|Any CPU
     {74b8fdbd-ffea-4265-ade6-2fb4c07a38d9}.Release|Any CPU.Build.0 = Release|Any CPU
+    {02fec259-a9e7-43ab-84ca-1c7786f099a2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+    {02fec259-a9e7-43ab-84ca-1c7786f099a2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+    {02fec259-a9e7-43ab-84ca-1c7786f099a2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+    {02fec259-a9e7-43ab-84ca-1c7786f099a2}.Release|Any CPU.Build.0 = Release|Any CPU
     {f8c29245-5cb6-4ee4-8387-c66bbfd853de}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
     {f8c29245-5cb6-4ee4-8387-c66bbfd853de}.Debug|Any CPU.Build.0 = Debug|Any CPU
     {f8c29245-5cb6-4ee4-8387-c66bbfd853de}.Release|Any CPU.ActiveCfg = Release|Any CPU
