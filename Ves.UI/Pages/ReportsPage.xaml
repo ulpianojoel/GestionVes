@@ -1,0 +1,76 @@
+<Page x:Class="Ves.UI.Pages.ReportsPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+      mc:Ignorable="d"
+      d:DesignWidth="900"
+      d:DesignHeight="680">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <StackPanel Orientation="Vertical">
+            <TextBlock Text="Reportes" Style="{StaticResource TitleText}" />
+            <TextBlock Text="Analizá tendencias y exportá resultados"
+                       Foreground="{StaticResource MutedTextBrush}"
+                       Margin="0,4,0,16" />
+        </StackPanel>
+
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+            <StackPanel>
+                <UniformGrid Columns="2" Margin="0,0,0,16">
+                    <Border Style="{StaticResource CardStyle}" Margin="0,0,16,16">
+                        <StackPanel>
+                            <TextBlock Text="Generar informe mensual" FontWeight="SemiBold" />
+                            <TextBlock Text="Descargá un resumen en PDF con todos los indicadores clave."
+                                       Foreground="{StaticResource MutedTextBrush}"
+                                       Margin="0,6,0,0" />
+                            <Button Content="Exportar PDF"
+                                    Style="{StaticResource PrimaryButtonStyle}"
+                                    Width="140"
+                                    Margin="0,16,0,0"
+                                    Click="OnExportClicked" />
+                        </StackPanel>
+                    </Border>
+                    <Border Style="{StaticResource CardStyle}" Margin="0,0,0,16">
+                        <StackPanel>
+                            <TextBlock Text="Compartir con dirección" FontWeight="SemiBold" />
+                            <TextBlock Text="Enviá un enlace con los últimos resultados al directorio."
+                                       Foreground="{StaticResource MutedTextBrush}"
+                                       Margin="0,6,0,0" />
+                            <Button Content="Generar enlace"
+                                    Style="{StaticResource SecondaryButtonStyle}"
+                                    Width="140"
+                                    Margin="0,16,0,0"
+                                    Click="OnShareClicked" />
+                        </StackPanel>
+                    </Border>
+                </UniformGrid>
+
+                <ItemsControl x:Name="ReportsList" Margin="0,16,0,0">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <StackPanel />
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Border Style="{StaticResource CardStyle}" Margin="0,0,0,16">
+                                <StackPanel>
+                                    <TextBlock Text="{Binding Title}" FontWeight="SemiBold" />
+                                    <TextBlock Text="{Binding Description}"
+                                               Foreground="{StaticResource MutedTextBrush}" />
+                                    <TextBlock Text="{Binding Period}" Margin="0,8,0,0" FontWeight="SemiBold" />
+                                    <TextBlock Text="{Binding Trend}" Foreground="{StaticResource PrimaryBrush}" />
+                                </StackPanel>
+                            </Border>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </StackPanel>
+        </ScrollViewer>
+    </Grid>
+</Page>

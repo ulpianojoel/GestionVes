@@ -1,16 +1,16 @@
 # GestionVes
-Sistema de gestión estructurado en varias capas.
+Suite de gestión con arquitectura en capas y una interfaz WPF moderna para escritorio.
 
 ## Arquitectura del repositorio
-- **GestionVes.sln**: solución de Visual Studio que referencia todos los proyectos.
-- **Ves.Domain**: contiene contratos y objetos de configuración compartidos.
-- **Ves.DAL**: expone fábricas de conexiones a SQL Server.
-- **Ves.BLL**: registra las fábricas disponibles a partir de la configuración cargada.
-- **Ves.Services**: ofrece servicios de diagnóstico y utilidades reutilizables por la UI.
-- **Ves.UI**: aplicación de consola que inicializa la configuración, valida las cadenas cargadas y muestra el estado de las conexiones.
+- **GestionVes.sln**: solución de Visual Studio con todos los proyectos.
+- **Ves.Domain**: contratos y objetos de configuración compartidos.
+- **Ves.DAL**: fábricas de conexión a SQL Server.
+- **Ves.BLL**: registro centralizado de fábricas a partir de la configuración.
+- **Ves.Services**: servicios reutilizables (diagnóstico de inicio, utilidades para la UI).
+- **Ves.UI**: aplicación WPF (.NET 8, `WinExe`) con login, panel principal, gestión de usuarios, operaciones, reportes y estado de conexiones.
 
 ## Configuración requerida
-El proyecto espera un archivo `Ves.UI/appsettings.json` con el siguiente formato:
+La UI carga las cadenas de conexión desde `Ves.UI/appsettings.json`:
 
 ```json
 {
@@ -21,37 +21,57 @@ El proyecto espera un archivo `Ves.UI/appsettings.json` con el siguiente formato
 }
 ```
 
-El archivo se busca en el directorio base de la aplicación, por lo que debe encontrarse junto al ejecutable. La compilación copia automáticamente `appsettings.json` a la carpeta de salida. La UI usa `ConfigurationBuilder` (desde los paquetes `Microsoft.Extensions.Configuration` y `Microsoft.Extensions.Configuration.Json`) para cargar la sección `ConnectionStrings`. Si falta el archivo, la sección `ConnectionStrings` o alguna de las claves `Business`/`Hash`, la aplicación mostrará un mensaje descriptivo y finalizará con un código distinto de cero.
+El archivo debe residir junto al ejecutable (`bin/<config>/<tfm>/`). La aplicación valida la presencia de ambas claves al iniciar y muestra un mensaje descriptivo si falta alguna.
 
-## Restaurar y compilar
-1. **Restaurar dependencias** (soluciona el error `project.assets.json` no encontrado):
+## Credenciales de demostración
+La capa de UI incluye un servicio simulado (`FakeAuthService`) con usuarios preconfigurados:
+
+| Usuario    | Contraseña      | Rol           | Estado    |
+|------------|-----------------|---------------|-----------|
+| `admin`    | `Admin@2024`    | Administrador | Activo    |
+| `analista` | `Analista@2024` | Analista      | Activo    |
+| `auditoria`| `Auditoria@2024`| Auditor       | Inactivo  |
+
+Ingresá con alguno de los usuarios activos para explorar las pantallas.
+
+## Pantallas incluidas
+- **Login y recuperación**: formulario moderno, mensajes de error y ventana para recuperar la contraseña.
+- **Panel principal**: indicadores clave, flujo de operaciones y notificaciones recientes.
+- **Gestión de usuarios**: listado con filtros, detalle del usuario seleccionado y acción para enviar recuperación.
+- **Operaciones**: listado editable (estado, vencimiento y marcado como completado).
+- **Reportes**: accesos rápidos a exportaciones y snapshots de indicadores.
+- **Conexiones**: reporte de diagnóstico, visualización y copia de las cadenas cargadas.
+
+La interfaz utiliza diseños con `Grid` y `Border` para adaptarse al tamaño de la ventana y mantener una estética consistente.
+
+## Restaurar, compilar y ejecutar
+1. **Restaurar dependencias** (soluciona `project.assets.json` faltante):
    ```bash
    dotnet restore GestionVes.sln
    ```
-2. **Compilar toda la solución**:
+2. **Compilar la solución**:
    ```bash
    dotnet build GestionVes.sln -c Debug
    ```
-3. **Ejecutar la UI**:
+3. **Ejecutar la UI WPF**:
    ```bash
    dotnet run --project Ves.UI/Ves.UI.csproj
    ```
+   En Windows también podés iniciar desde Visual Studio estableciendo `Ves.UI` como proyecto de inicio y presionando **F5**.
 
-> La solución solo usa los paquetes `Microsoft.Extensions.Configuration` y `Microsoft.Extensions.Configuration.Json`; si la restauración falla, revisá la instalación del SDK de .NET 8 y vuelve a intentar el proceso.
+### Configuración en Visual Studio
+- Asegurate de que `Ves.UI` tenga:
+  - `Output type`: **Windows Application (WinExe)**
+  - `Target framework`: **.NET 8.0**
+- Si el ejecutable no aparece tras compilar:
+  1. **Build → Clean Solution** y luego **Build → Rebuild Solution**.
+  2. Eliminá las carpetas `bin/` y `obj/` de cada proyecto y recompilá.
+  3. Verificá que el SDK de .NET 8 esté instalado (ver sección siguiente).
 
-## Resolver "no se puede encontrar Ves.UI.exe" en Visual Studio
-1. Abrí `GestionVes.sln` y marcá `Ves.UI` como **Startup Project**.
-2. Verificá en `Ves.UI` → **Properties** → **Application** que `Output type` sea **Console Application** y `Target framework` sea **.NET 8.0**.
-3. Ejecutá **Build → Clean Solution** y luego **Build → Rebuild Solution**. El panel **Output → Build** debe indicar `Build succeeded`.
-4. Si persiste, cerrá Visual Studio, eliminá las carpetas `bin/` y `obj/` de cada proyecto (`Ves.Domain`, `Ves.DAL`, `Ves.BLL`, `Ves.Services`, `Ves.UI`) y volvé a abrir la solución.
+## Errores comunes y solución
+- **`DateTime` u otros tipos básicos no encontrados**: instalá o repará el SDK/targeting pack de .NET 8 y volvé a ejecutar `dotnet restore` / `dotnet build`.
+- **`project.assets.json` ausente**: ejecutar `dotnet restore GestionVes.sln` o la opción **Restore NuGet Packages** en Visual Studio.
+- **Faltan archivos de referencia (Microsoft.Win32...xml)**: indica una instalación de .NET dañada; reinstalá el SDK de .NET 8 y reiniciá Visual Studio.
 
-## Errores de compilación "DateTime no se encontró"
-Si Visual Studio muestra mensajes como `El nombre del tipo o del espacio de nombres 'DateTime' no se encontró`, significa que faltan las referencias base del framework.
-
-1. Verificá que tengas instalado el SDK o targeting pack de .NET 8.0. En Visual Studio 2022 se agrega desde **Tools → Get Tools and Features → Individual components → .NET 8.0 Runtime/SDK**.
-2. Alternativamente, instalá el SDK desde la línea de comandos descargándolo de <https://dotnet.microsoft.com/download/dotnet/8.0> y volvé a abrir la solución.
-3. Luego de la instalación, ejecutá `dotnet --info` o `dotnet --list-sdks` para confirmar que el SDK quedó disponible y reconstruí la solución (`dotnet restore`, `dotnet build`).
-
-## Diagnóstico adicional
-- El mensaje `No se encontró el archivo de recursos ... project.assets.json` desaparece tras ejecutar `dotnet restore GestionVes.sln` o **Restore NuGet Packages** en Visual Studio.
-- Para revisar el estado del arranque sin ejecutar la aplicación, consultá el reporte que imprime la consola. Muestra qué fábricas de conexión fueron registradas a partir del `appsettings.json`.
+## Bases de datos de ejemplo
+En la carpeta `sql/` (crear manualmente si deseás) podés guardar los scripts provistos anteriormente para `BusinessDb` y `HashDb`. Ajustá las cadenas en `appsettings.json` para apuntar a tu servidor SQL Server.
