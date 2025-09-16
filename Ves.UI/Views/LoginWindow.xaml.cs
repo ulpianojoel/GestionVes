@@ -3,52 +3,50 @@ using Ves.UI.Bootstrap;
 using Ves.UI.Models;
 using Ves.UI.Services;
 
-namespace Ves.UI.Views;
-
-public partial class LoginWindow : Window
+namespace Ves.UI.Views
 {
-    private readonly AppEnvironment _environment;
-    private readonly IAuthService _authService;
-
-    public LoginWindow(AppEnvironment environment)
+    public partial class LoginWindow : Window
     {
-        InitializeComponent();
-        _environment = environment;
-        _authService = new FakeAuthService();
-    }
+        private readonly AppEnvironment _environment;
+        private readonly IAuthService _authService;
 
-    private void OnLoginClicked(object sender, RoutedEventArgs e)
-    {
-        ErrorText.Visibility = Visibility.Collapsed;
-        var username = UsernameTextBox.Text.Trim();
-        var password = PasswordBox.Password;
-
-        if (!_authService.TryAuthenticate(username, password, out var account, out var error))
+        public LoginWindow(AppEnvironment environment)
         {
-            ErrorText.Text = error;
-            ErrorText.Visibility = Visibility.Visible;
-            PasswordBox.SelectAll();
-            PasswordBox.Focus();
-            return;
+            InitializeComponent();
+            _environment = environment;
+            _authService = new FakeAuthService();
         }
 
-        var mainWindow = new MainWindow(_environment, account!, _authService)
+        private void OnLoginClicked(object sender, RoutedEventArgs e)
         {
-            Owner = this
-        };
+            ErrorText.Visibility = Visibility.Collapsed;
+            string username = UsernameTextBox.Text.Trim();
+            string password = PasswordBox.Password;
 
-        mainWindow.Closed += (_, _) => Close();
-        Hide();
-        mainWindow.Show();
-    }
+            UserAccount account;
+            string error;
+            if (!_authService.TryAuthenticate(username, password, out account, out error))
+            {
+                ErrorText.Text = string.IsNullOrEmpty(error) ? "No se pudo iniciar sesión." : error;
+                ErrorText.Visibility = Visibility.Visible;
+                PasswordBox.SelectAll();
+                PasswordBox.Focus();
+                return;
+            }
 
-    private void OnRecoverPasswordClicked(object sender, RoutedEventArgs e)
-    {
-        var recoveryWindow = new PasswordRecoveryWindow(_authService)
+            var mainWindow = new MainWindow(_environment, account, _authService);
+            mainWindow.Owner = this;
+            mainWindow.Closed += delegate { Close(); };
+
+            Hide();
+            mainWindow.Show();
+        }
+
+        private void OnRecoverPasswordClicked(object sender, RoutedEventArgs e)
         {
-            Owner = this
-        };
-
-        recoveryWindow.ShowDialog();
+            var recoveryWindow = new PasswordRecoveryWindow(_authService);
+            recoveryWindow.Owner = this;
+            recoveryWindow.ShowDialog();
+        }
     }
 }

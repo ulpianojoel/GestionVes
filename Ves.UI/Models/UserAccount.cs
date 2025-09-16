@@ -1,20 +1,19 @@
 using System;
 
-namespace Ves.UI.Models;
-
-public sealed class UserAccount
+namespace Ves.UI.Models
 {
-    public required string Username { get; init; }
+    public sealed class UserAccount
+    {
+        public string Username { get; set; }
 
-    public required string DisplayName { get; init; }
+        public string DisplayName { get; set; }
 
-    public required string Role { get; init; }
+        public string Role { get; set; }
 
-    public required string Email { get; init; }
+        public string Email { get; set; }
 
-    public bool IsActive { get; init; }
+        public bool IsActive { get; set; }
 
-    public DateTime LastAccessUtc { get; init; }
-
-    public string Status => IsActive ? "Activo" : "Suspendido";
+        public DateTime LastAccessUtc { get; set; }
+    }
 }

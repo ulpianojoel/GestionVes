@@ -1,8 +1,9 @@
-namespace Ves.DAL.Data;
-
-public interface ISqlConnectionFactory
+namespace Ves.DAL.Data
 {
-    string Name { get; }
+    public interface ISqlConnectionFactory
+    {
+        string Name { get; }
 
-    string ConnectionString { get; }
+        string ConnectionString { get; }
+    }
 }

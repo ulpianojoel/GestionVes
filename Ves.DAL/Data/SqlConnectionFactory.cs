@@ -1,14 +1,15 @@
-namespace Ves.DAL.Data;
-
-public sealed class SqlConnectionFactory : ISqlConnectionFactory
+namespace Ves.DAL.Data
 {
-    public SqlConnectionFactory(string name, string connectionString)
+    public sealed class SqlConnectionFactory : ISqlConnectionFactory
     {
-        Name = name;
-        ConnectionString = connectionString;
+        public SqlConnectionFactory(string name, string connectionString)
+        {
+            Name = name;
+            ConnectionString = connectionString;
+        }
+
+        public string Name { get; private set; }
+
+        public string ConnectionString { get; private set; }
     }
-
-    public string Name { get; }
-
-    public string ConnectionString { get; }
 }

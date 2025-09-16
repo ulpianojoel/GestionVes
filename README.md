@@ -9,6 +9,12 @@ Suite de gestión con arquitectura en capas y una interfaz WPF moderna para escr
 - **Ves.Services**: servicios reutilizables (diagnóstico de inicio, utilidades para la UI).
 - **Ves.UI**: aplicación WPF (.NET 8, `WinExe`) con login, panel principal, gestión de usuarios, operaciones, reportes y estado de conexiones.
 
+### Compatibilidad del código
+El código fuente se reescribió usando únicamente características clásicas de C# (clases, propiedades con `get/set`, namespaces con llaves, etc.).
+De esta manera la solución puede compilarse incluso en instalaciones de Visual Studio que todavía no habilitan las
+anotaciones de nulabilidad o los records introducidos en versiones recientes del lenguaje. Aun así, seguí siendo
+necesario contar con el SDK de .NET 8 para generar los binarios.
+
 ## Configuración requerida
 La UI carga las cadenas de conexión desde `Ves.UI/appsettings.json`:
 

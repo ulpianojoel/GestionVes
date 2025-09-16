@@ -1,16 +1,22 @@
 using System;
 
-namespace Ves.UI.Models;
-
-public sealed class DashboardSummary
+namespace Ves.UI.Models
 {
-    public int ActiveUsers { get; init; }
+    public sealed class DashboardSummary
+    {
+        public DashboardSummary()
+        {
+            LastSyncLabel = DateTime.Now.ToString("dd/MM/yyyy HH:mm");
+        }
 
-    public int InactiveUsers { get; init; }
+        public int ActiveUsers { get; set; }
 
-    public int PendingOperations { get; init; }
+        public int InactiveUsers { get; set; }
 
-    public int Alerts { get; init; }
+        public int PendingOperations { get; set; }
 
-    public string LastSyncLabel { get; init; } = DateTime.Now.ToString("dd/MM/yyyy HH:mm");
+        public int Alerts { get; set; }
+
+        public string LastSyncLabel { get; set; }
+    }
 }

@@ -3,27 +3,28 @@ using Ves.BLL.Services;
 using Ves.Domain.Configuration;
 using Ves.Services.Diagnostics;
 
-namespace Ves.UI.Bootstrap;
-
-public sealed class AppEnvironment
+namespace Ves.UI.Bootstrap
 {
-    public AppEnvironment(
-        IConfigurationRoot configuration,
-        DatabaseConnectionOptions options,
-        ConnectionFactoryRegistry registry,
-        StartupDiagnosticsService diagnostics)
+    public sealed class AppEnvironment
     {
-        Configuration = configuration;
-        Options = options;
-        Registry = registry;
-        Diagnostics = diagnostics;
+        public AppEnvironment(
+            IConfigurationRoot configuration,
+            DatabaseConnectionOptions options,
+            ConnectionFactoryRegistry registry,
+            StartupDiagnosticsService diagnostics)
+        {
+            Configuration = configuration;
+            Options = options;
+            Registry = registry;
+            Diagnostics = diagnostics;
+        }
+
+        public IConfigurationRoot Configuration { get; private set; }
+
+        public DatabaseConnectionOptions Options { get; private set; }
+
+        public ConnectionFactoryRegistry Registry { get; private set; }
+
+        public StartupDiagnosticsService Diagnostics { get; private set; }
     }
-
-    public IConfigurationRoot Configuration { get; }
-
-    public DatabaseConnectionOptions Options { get; }
-
-    public ConnectionFactoryRegistry Registry { get; }
-
-    public StartupDiagnosticsService Diagnostics { get; }
 }

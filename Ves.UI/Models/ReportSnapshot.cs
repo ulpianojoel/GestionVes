@@ -1,12 +1,13 @@
-namespace Ves.UI.Models;
-
-public sealed class ReportSnapshot
+namespace Ves.UI.Models
 {
-    public required string Title { get; init; }
+    public sealed class ReportSnapshot
+    {
+        public string Title { get; set; }
 
-    public required string Description { get; init; }
+        public string Description { get; set; }
 
-    public required string Period { get; init; }
+        public string Period { get; set; }
 
-    public required string Trend { get; init; }
+        public string Trend { get; set; }
+    }
 }

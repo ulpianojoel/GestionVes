@@ -1,40 +1,46 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Diagnostics.CodeAnalysis;
 using Ves.DAL.Data;
 using Ves.Domain.Configuration;
 
-namespace Ves.BLL.Services;
-
-public sealed class ConnectionFactoryRegistry
+namespace Ves.BLL.Services
 {
-    private readonly ReadOnlyDictionary<string, ISqlConnectionFactory> _factories;
-
-    public ConnectionFactoryRegistry(DatabaseConnectionOptions options)
+    public sealed class ConnectionFactoryRegistry
     {
-        ArgumentNullException.ThrowIfNull(options);
+        private readonly ReadOnlyDictionary<string, ISqlConnectionFactory> _factories;
 
-        var factories = new Dictionary<string, ISqlConnectionFactory>(StringComparer.OrdinalIgnoreCase)
+        public ConnectionFactoryRegistry(DatabaseConnectionOptions options)
         {
-            ["Business"] = new SqlConnectionFactory("Business", options.Business),
-            ["Hash"] = new SqlConnectionFactory("Hash", options.Hash)
-        };
+            if (options == null)
+            {
+                throw new ArgumentNullException(nameof(options));
+            }
 
-        _factories = new ReadOnlyDictionary<string, ISqlConnectionFactory>(factories);
-    }
+            var factories = new Dictionary<string, ISqlConnectionFactory>(StringComparer.OrdinalIgnoreCase)
+            {
+                { "Business", new SqlConnectionFactory("Business", options.Business) },
+                { "Hash", new SqlConnectionFactory("Hash", options.Hash) }
+            };
 
-    public IReadOnlyCollection<string> RegisteredNames => _factories.Keys;
-
-    public bool TryGetFactory(string name, [NotNullWhen(true)] out ISqlConnectionFactory? factory)
-    {
-        if (_factories.TryGetValue(name, out var resolved))
-        {
-            factory = resolved;
-            return true;
+            _factories = new ReadOnlyDictionary<string, ISqlConnectionFactory>(factories);
         }
 
-        factory = null;
-        return false;
+        public IReadOnlyCollection<string> RegisteredNames
+        {
+            get { return _factories.Keys; }
+        }
+
+        public bool TryGetFactory(string name, out ISqlConnectionFactory factory)
+        {
+            if (_factories.TryGetValue(name, out var resolved))
+            {
+                factory = resolved;
+                return true;
+            }
+
+            factory = null;
+            return false;
+        }
     }
 }

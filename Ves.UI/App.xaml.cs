@@ -2,22 +2,24 @@ using System.Windows;
 using Ves.UI.Bootstrap;
 using Ves.UI.Views;
 
-namespace Ves.UI;
-
-public partial class App : Application
+namespace Ves.UI
 {
-    protected override void OnStartup(StartupEventArgs e)
+    public partial class App : Application
     {
-        base.OnStartup(e);
-
-        if (!ConfigurationBootstrapper.TryInitialize(out var environment))
+        protected override void OnStartup(StartupEventArgs e)
         {
-            Shutdown(-1);
-            return;
-        }
+            base.OnStartup(e);
 
-        var loginWindow = new LoginWindow(environment);
-        MainWindow = loginWindow;
-        loginWindow.Show();
+            AppEnvironment environment;
+            if (!ConfigurationBootstrapper.TryInitialize(out environment))
+            {
+                Shutdown(-1);
+                return;
+            }
+
+            var loginWindow = new LoginWindow(environment);
+            MainWindow = loginWindow;
+            loginWindow.Show();
+        }
     }
 }

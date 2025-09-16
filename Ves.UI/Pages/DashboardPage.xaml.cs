@@ -1,13 +1,14 @@
 using System.Windows.Controls;
 using Ves.UI.ViewModels;
 
-namespace Ves.UI.Pages;
-
-public partial class DashboardPage : Page
+namespace Ves.UI.Pages
 {
-    public DashboardPage(DashboardViewModel viewModel)
+    public partial class DashboardPage : Page
     {
-        InitializeComponent();
-        DataContext = viewModel;
+        public DashboardPage(DashboardViewModel viewModel)
+        {
+            InitializeComponent();
+            DataContext = viewModel;
+        }
     }
 }

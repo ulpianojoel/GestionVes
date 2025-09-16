@@ -1,16 +1,20 @@
 using System;
 
-namespace Ves.UI.Models;
-
-public sealed class OperationItem
+namespace Ves.UI.Models
 {
-    public required string Title { get; init; }
+    public sealed class OperationItem
+    {
+        public string Title { get; set; }
 
-    public required string Description { get; init; }
+        public string Description { get; set; }
 
-    public string Status { get; set; } = "Pendiente";
+        public string Status { get; set; }
 
-    public DateTime? DueDate { get; set; }
+        public DateTime? DueDate { get; set; }
 
-    public string DueLabel => DueDate?.ToString("dd/MM/yyyy") ?? "Sin fecha";
+        public override string ToString()
+        {
+            return Title + " (" + Status + ")";
+        }
+    }
 }
