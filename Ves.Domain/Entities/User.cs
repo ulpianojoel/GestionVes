@@ -1,3 +1,7 @@
+using System;
+
+#nullable enable
+
 namespace Ves.Domain.Entities;
 
 /// <summary>
