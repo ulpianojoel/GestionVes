@@ -1,0 +1,15 @@
+{
+  "ExpandedNodes": [
+    "",
+    "\\Ves.DAL",
+    "\\Ves.DAL\\bin",
+    "\\Ves.DAL\\bin\\Debug",
+    "\\Ves.Services",
+    "\\Ves.Services\\bin",
+    "\\Ves.Services\\bin\\Debug",
+    "\\Ves.Services\\Implementations",
+    "\\Ves.Services\\Interfaces"
+  ],
+  "SelectedNode": "\\Ves.Services\\Ves.Services.csproj",
+  "PreviewInSolutionExplorer": false
+}

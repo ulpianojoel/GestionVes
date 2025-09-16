@@ -8,4 +8,7 @@
     <ProjectReference Include="../Ves.Domain/Ves.Domain.csproj" />
     <ProjectReference Include="../Ves.Services/Ves.Services.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+  </ItemGroup>
 </Project>

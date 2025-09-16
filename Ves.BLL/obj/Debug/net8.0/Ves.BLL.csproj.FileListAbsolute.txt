@@ -1,0 +1,6 @@
+C:\Users\Joel\Documents\GestionVes\Ves.BLL\obj\Debug\net8.0\Ves.BLL.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\Joel\Documents\GestionVes\Ves.BLL\obj\Debug\net8.0\Ves.BLL.AssemblyInfoInputs.cache
+C:\Users\Joel\Documents\GestionVes\Ves.BLL\obj\Debug\net8.0\Ves.BLL.AssemblyInfo.cs
+C:\Users\Joel\Documents\GestionVes\Ves.BLL\obj\Debug\net8.0\Ves.BLL.csproj.CoreCompileInputs.cache
+C:\Users\Joel\Documents\GestionVes\Ves.BLL\obj\Debug\net8.0\Ves.BLL.sourcelink.json
+C:\Users\Joel\Documents\GestionVes\Ves.BLL\obj\Debug\net8.0\Ves.BLL.csproj.AssemblyReference.cache
