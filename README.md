@@ -10,4 +10,4 @@ Sistema de gestión VES construido con .NET 8.
 - **Ves.BLL**: Lógica de negocio y orquestación de casos de uso.
 - **Ves.UI**: Aplicación de consola que ejerce como interfaz de usuario.
 
-La solución se orienta a SQL Server 2019 en `DESKTOP-B7V8BS2\\SQLEXPRESS` con dos bases de datos: una para datos de negocio y otra para hashes de archivos.
+La solución se orienta a SQL Server 2019 con dos bases de datos: una para datos de negocio y otra para hashes de archivos.
