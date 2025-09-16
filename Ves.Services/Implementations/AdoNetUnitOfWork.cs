@@ -2,6 +2,8 @@ using System.Data;
 using Ves.DAL.Interfaces;
 using Ves.Services.Interfaces;
 
+#nullable enable
+
 namespace Ves.Services.Implementations;
 
 /// <summary>

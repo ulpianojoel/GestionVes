@@ -1,6 +1,8 @@
 using Ves.Domain.Entities;
 using Ves.Domain.Enums;
 
+#nullable enable
+
 namespace Ves.DAL.Interfaces;
 
 /// <summary>

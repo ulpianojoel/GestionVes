@@ -4,6 +4,8 @@ using Ves.Domain.Entities;
 using Ves.Domain.Enums;
 using Ves.Domain.ValueObjects;
 
+#nullable enable
+
 namespace Ves.DAL.Repositories;
 
 /// <summary>

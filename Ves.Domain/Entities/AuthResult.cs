@@ -1,5 +1,7 @@
 namespace Ves.Domain.Entities;
 
+#nullable enable
+
 /// <summary>
 /// Result of an authentication attempt.
 /// </summary>
