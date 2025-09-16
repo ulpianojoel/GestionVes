@@ -1,0 +1,15 @@
+# Build outputs
+bin/
+obj/
+
+# Visual Studio local settings
+.vs/
+*.user
+*.suo
+
+# NuGet packages
+*.nupkg
+*.snupkg
+
+# Other tooling caches
+*.ide
