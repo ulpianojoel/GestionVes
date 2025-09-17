@@ -1,11 +1,10 @@
 using Ves.Domain.Entities;
 
-namespace Ves.DAL.Interfaces;
-
-/// <summary>
-/// Repository abstraction for clients.
-/// </summary>
-public interface IClientRepository
+namespace Ves.DAL.Interfaces
 {
-    int Add(Client client);
+    public interface IClientRepository
+    {
+        int Insert(Client client);
+        // agrega aquí otros métodos si los necesitás (GetById, etc.)
+    }
 }

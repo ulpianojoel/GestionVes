@@ -1,12 +1,9 @@
-using System.Data;
+using Microsoft.Data.SqlClient;
 
-namespace Ves.DAL.Interfaces;
-
-/// <summary>
-/// Provides database connections for repositories.
-/// </summary>
-public interface IDbConnectionFactory
+namespace Ves.DAL.Interfaces
 {
-    IDbConnection CreateBusinessConnection();
-    IDbConnection CreateHashConnection();
+    public interface IDbConnectionFactory
+    {
+        SqlConnection CreateOpenConnection();
+    }
 }

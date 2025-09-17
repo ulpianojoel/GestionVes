@@ -1,9 +1,7 @@
-namespace Ves.Services.Interfaces;
-
-/// <summary>
-/// Writes audit information to a log sink.
-/// </summary>
-public interface IAuditService
+namespace Ves.Services.Interfaces
 {
-    void Write(string actor, string action, object? data = null);
+    public interface IAuditService
+    {
+        void Write(string title, string message, object? metadata = null);
+    }
 }

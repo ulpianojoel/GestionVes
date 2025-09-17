@@ -1,13 +1,10 @@
 using System.Collections.Generic;
-using Ves.Domain.Entities;
 
-namespace Ves.DAL.Interfaces;
-
-/// <summary>
-/// Repository for storing file hashes.
-/// </summary>
-public interface IFileRecordRepository
+namespace Ves.DAL.Interfaces
 {
-    void Save(FileRecord record);
-    IEnumerable<FileRecord> GetAll();
+    public interface IFileRecordRepository
+    {
+        void SaveHash(string filePath, string hashHex);
+        IEnumerable<(string FilePath, string HashHex)> GetAll();
+    }
 }

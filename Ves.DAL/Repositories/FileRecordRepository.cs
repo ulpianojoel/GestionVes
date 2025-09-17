@@ -1,50 +1,37 @@
+using Microsoft.Data.SqlClient;
 using System.Collections.Generic;
-using System.Data;
 using Ves.DAL.Interfaces;
-using Ves.Domain.Entities;
 
-namespace Ves.DAL.Repositories;
-
-/// <summary>
-/// Stores file hashes in a dedicated database.
-/// </summary>
-public class FileRecordRepository : IFileRecordRepository
+namespace Ves.DAL.Repositories
 {
-    private readonly IDbConnectionFactory _factory;
-
-    public FileRecordRepository(IDbConnectionFactory factory)
+    public class FileRecordRepository : IFileRecordRepository
     {
-        _factory = factory;
-    }
+        private readonly IDbConnectionFactory _factory;
 
-    public void Save(FileRecord record)
-    {
-        using var conn = _factory.CreateHashConnection();
-        using var cmd = conn.CreateCommand();
-        cmd.CommandText = "INSERT INTO FileRecords(Path,Hash,CreatedAt) VALUES(@Path,@Hash,@CreatedAt)";
-        var pPath = cmd.CreateParameter(); pPath.ParameterName = "@Path"; pPath.Value = record.Path; cmd.Parameters.Add(pPath);
-        var pHash = cmd.CreateParameter(); pHash.ParameterName = "@Hash"; pHash.Value = record.Hash; cmd.Parameters.Add(pHash);
-        var pCreated = cmd.CreateParameter(); pCreated.ParameterName = "@CreatedAt"; pCreated.Value = record.CreatedAt; cmd.Parameters.Add(pCreated);
-        conn.Open();
-        cmd.ExecuteNonQuery();
-    }
-
-    public IEnumerable<FileRecord> GetAll()
-    {
-        using var conn = _factory.CreateHashConnection();
-        using var cmd = conn.CreateCommand();
-        cmd.CommandText = "SELECT Id,Path,Hash,CreatedAt FROM FileRecords";
-        conn.Open();
-        using var reader = cmd.ExecuteReader();
-        while (reader.Read())
+        public FileRecordRepository(IDbConnectionFactory factory)
         {
-            yield return new FileRecord
+            _factory = factory;
+        }
+
+        public void SaveHash(string filePath, string hashHex)
+        {
+            using SqlConnection conn = _factory.CreateOpenConnection();
+            using var cmd = new SqlCommand(
+                "INSERT INTO FileHashes (FilePath, Hash) VALUES (@Path, @Hash)", conn);
+            cmd.Parameters.AddWithValue("@Path", filePath);
+            cmd.Parameters.AddWithValue("@Hash", hashHex);
+            cmd.ExecuteNonQuery();
+        }
+
+        public IEnumerable<(string FilePath, string HashHex)> GetAll()
+        {
+            using SqlConnection conn = _factory.CreateOpenConnection();
+            using var cmd = new SqlCommand("SELECT FilePath, Hash FROM FileHashes", conn);
+            using var rdr = cmd.ExecuteReader();
+            while (rdr.Read())
             {
-                Id = reader.GetInt32(0),
-                Path = reader.GetString(1),
-                Hash = reader.GetString(2),
-                CreatedAt = reader.GetDateTime(3)
-            };
+                yield return (rdr.GetString(0), rdr.GetString(1));
+            }
         }
     }
 }

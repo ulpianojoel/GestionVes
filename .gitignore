@@ -1,0 +1,17 @@
+## Archivos de Visual Studio
+.vs/
+*.user
+*.suo
+
+## Carpetas de compilación
+bin/
+obj/
+
+## Archivos temporales
+*.cache
+*.log
+*.pdb
+*.db
+
+## Archivos de configuración local
+*.launchSettings.json

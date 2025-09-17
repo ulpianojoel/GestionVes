@@ -1,31 +1,26 @@
-using System.Data;
+using Microsoft.Data.SqlClient;
 using Ves.DAL.Interfaces;
 using Ves.Domain.Entities;
 
-namespace Ves.DAL.Repositories;
-
-/// <summary>
-/// ADO.NET implementation of <see cref="IClientRepository"/>.
-/// </summary>
-public class ClientRepository : IClientRepository
+namespace Ves.DAL.Repositories
 {
-    private readonly IDbConnectionFactory _factory;
-
-    public ClientRepository(IDbConnectionFactory factory)
+    public class ClientRepository : IClientRepository
     {
-        _factory = factory;
-    }
+        private readonly IDbConnectionFactory _factory;
 
-    public int Add(Client client)
-    {
-        using var conn = _factory.CreateBusinessConnection();
-        using var cmd = conn.CreateCommand();
-        cmd.CommandText = "INSERT INTO Clients(Name,Email,Active,CreatedAt) OUTPUT INSERTED.ID VALUES(@Name,@Email,@Active,@CreatedAt)";
-        var pName = cmd.CreateParameter(); pName.ParameterName = "@Name"; pName.Value = client.Name; cmd.Parameters.Add(pName);
-        var pEmail = cmd.CreateParameter(); pEmail.ParameterName = "@Email"; pEmail.Value = client.Email; cmd.Parameters.Add(pEmail);
-        var pActive = cmd.CreateParameter(); pActive.ParameterName = "@Active"; pActive.Value = client.Active; cmd.Parameters.Add(pActive);
-        var pCreated = cmd.CreateParameter(); pCreated.ParameterName = "@CreatedAt"; pCreated.Value = client.CreatedAt; cmd.Parameters.Add(pCreated);
-        conn.Open();
-        return (int)(cmd.ExecuteScalar() ?? 0);
+        public ClientRepository(IDbConnectionFactory factory)
+        {
+            _factory = factory;
+        }
+
+        public int Insert(Client client)
+        {
+            using SqlConnection conn = _factory.CreateOpenConnection();
+            using var cmd = new SqlCommand(
+                "INSERT INTO Clients (Name, Email) OUTPUT INSERTED.Id VALUES (@Name, @Email)", conn);
+            cmd.Parameters.AddWithValue("@Name", client.Name);
+            cmd.Parameters.AddWithValue("@Email", client.Email);
+            return (int)cmd.ExecuteScalar();
+        }
     }
 }

@@ -1,24 +1,22 @@
-using System.Data;
-using System.Data.SqlClient;
+using Microsoft.Data.SqlClient;
 using Ves.DAL.Interfaces;
 
-namespace Ves.DAL.Config;
-
-/// <summary>
-/// Provides SQL Server connections for business and hash databases.
-/// </summary>
-public class SqlConnectionFactory : IDbConnectionFactory
+namespace Ves.DAL.Config
 {
-    private readonly string _businessCs;
-    private readonly string _hashCs;
-
-    public SqlConnectionFactory(string businessCs, string hashCs)
+    public class SqlConnectionFactory : IDbConnectionFactory
     {
-        _businessCs = businessCs;
-        _hashCs = hashCs;
+        private readonly string _connectionString;
+
+        public SqlConnectionFactory(string connectionString)
+        {
+            _connectionString = connectionString;
+        }
+
+        public SqlConnection CreateOpenConnection()
+        {
+            var conn = new SqlConnection(_connectionString);
+            conn.Open();
+            return conn;
+        }
     }
-
-    public IDbConnection CreateBusinessConnection() => new SqlConnection(_businessCs);
-
-    public IDbConnection CreateHashConnection() => new SqlConnection(_hashCs);
 }

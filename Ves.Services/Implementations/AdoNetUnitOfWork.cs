@@ -1,40 +1,37 @@
-using System.Data;
+﻿using Microsoft.Data.SqlClient;
+using System;
 using Ves.DAL.Interfaces;
 using Ves.Services.Interfaces;
 
-namespace Ves.Services.Implementations;
-
-/// <summary>
-/// Simple ADO.NET unit of work implementation using a single SQL transaction.
-/// </summary>
-public class AdoNetUnitOfWork : IUnitOfWork
+namespace Ves.Services.Implementations
 {
-    private readonly IDbConnectionFactory _factory;
-    private IDbConnection? _connection;
-    private IDbTransaction? _transaction;
-
-    public AdoNetUnitOfWork(IDbConnectionFactory factory)
+    public class AdoNetUnitOfWork : IUnitOfWork, IDisposable
     {
-        _factory = factory;
-    }
+        private readonly IDbConnectionFactory _factory;
+        private SqlConnection? _conn;
+        private SqlTransaction? _tx;
 
-    public IDbConnection Connection => _connection ??= _factory.CreateBusinessConnection();
+        public AdoNetUnitOfWork(IDbConnectionFactory factory)
+        {
+            _factory = factory;
+        }
 
-    public void Begin()
-    {
-        Connection.Open();
-        _transaction = Connection.BeginTransaction();
-    }
+        public void Begin()
+        {
+            _conn = _factory.CreateOpenConnection();   // <- antes: CreateBusinessConnection()
+            _tx = _conn.BeginTransaction();
+        }
 
-    public void Commit()
-    {
-        _transaction?.Commit();
-        Connection.Close();
-    }
+        public void Commit() => _tx?.Commit();
+        public void Rollback() => _tx?.Rollback();
 
-    public void Rollback()
-    {
-        _transaction?.Rollback();
-        Connection.Close();
+        public SqlConnection Connection => _conn ??= _factory.CreateOpenConnection();
+        public SqlTransaction? Transaction => _tx;
+
+        public void Dispose()
+        {
+            _tx?.Dispose();
+            _conn?.Dispose();
+        }
     }
 }

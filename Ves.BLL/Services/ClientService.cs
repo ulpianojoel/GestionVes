@@ -1,31 +1,28 @@
-using Ves.BLL.Interfaces;
 using Ves.DAL.Interfaces;
 using Ves.Domain.Entities;
 using Ves.Services.Interfaces;
 
-namespace Ves.BLL.Services;
-
-/// <summary>
-/// Implements client-related business rules.
-/// </summary>
-public class ClientService : IClientService
+namespace Ves.BLL.Services
 {
-    private readonly IClientRepository _repository;
-    private readonly INotificationService _notifier;
-    private readonly IAuditService _audit;
-
-    public ClientService(IClientRepository repository, INotificationService notifier, IAuditService audit)
+    public class ClientService
     {
-        _repository = repository;
-        _notifier = notifier;
-        _audit = audit;
-    }
+        private readonly IClientRepository _repo;
+        private readonly INotificationService _notifier;
+        private readonly IAuditService _audit;
 
-    public int Register(Client client)
-    {
-        var id = _repository.Add(client);
-        _notifier.SendWelcome(client.Email, client.Name);
-        _audit.Write("UI", "Client.Register", new { id, client.Email });
-        return id;
+        public ClientService(IClientRepository repo, INotificationService notifier, IAuditService audit)
+        {
+            _repo = repo;
+            _notifier = notifier;
+            _audit = audit;
+        }
+
+        public int Register(Client client)
+        {
+            var id = _repo.Insert(client);             // <-- antes: Add()
+            _notifier.SendWelcome(client.Name, client.Email);
+            _audit.Write("ClientRegistered", $"Client {client.Name} ({client.Email}) registered with id {id}");
+            return id;
+        }
     }
 }

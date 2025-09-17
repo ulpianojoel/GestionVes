@@ -1,44 +1,42 @@
+using System;
 using System.IO;
 using System.Security.Cryptography;
 using System.Text;
-using Ves.BLL.Interfaces;
 using Ves.DAL.Interfaces;
-using Ves.Domain.Entities;
 
-namespace Ves.BLL.Services;
-
-/// <summary>
-/// Computes hashes for files and persists them.
-/// </summary>
-public class FileHashService : IFileHashService
+namespace Ves.BLL.Services
 {
-    private readonly IFileRecordRepository _repository;
-
-    public FileHashService(IFileRecordRepository repository)
+    public class FileHashService
     {
-        _repository = repository;
-    }
+        private readonly IFileRecordRepository _repo;
 
-    public void SaveHash(string filePath)
-    {
-        using var sha = SHA256.Create();
-        var bytes = File.ReadAllBytes(filePath);
-        var hash = sha.ComputeHash(bytes);
-        var record = new FileRecord
+        public FileHashService(IFileRecordRepository repo)
         {
-            Path = filePath,
-            Hash = BitConverter.ToString(hash).Replace("-", string.Empty)
-        };
-        _repository.Save(record);
-    }
+            _repo = repo;
+        }
 
-    public void ExportHashesToFile(string destinationPath)
-    {
-        var records = _repository.GetAll();
-        using var writer = new StreamWriter(destinationPath, false, Encoding.UTF8);
-        foreach (var r in records)
+        public void SaveHash(string filePath)
         {
-            writer.WriteLine($"{r.Path} {r.Hash}");
+            if (!File.Exists(filePath))
+                throw new FileNotFoundException("Archivo no encontrado", filePath);
+
+            using var stream = File.OpenRead(filePath);
+            using var sha = SHA256.Create();
+            var hashBytes = sha.ComputeHash(stream);
+            var hashHex = Convert.ToHexString(hashBytes);
+
+            _repo.SaveHash(filePath, hashHex);         // <-- antes: Save(path, hash)
+        }
+
+        public void ExportHashesToFile(string outputPath)
+        {
+            var sb = new StringBuilder();
+            foreach (var item in _repo.GetAll())
+            {
+                // El repo devuelve (FilePath, HashHex)
+                sb.AppendLine($"{item.FilePath}|{item.HashHex}");
+            }
+            File.WriteAllText(outputPath, sb.ToString());
         }
     }
 }

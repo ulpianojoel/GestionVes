@@ -1,9 +1,8 @@
-namespace Ves.Services.Interfaces;
-
-/// <summary>
-/// Sends notifications to users.
-/// </summary>
-public interface INotificationService
+namespace Ves.Services.Interfaces
 {
-    void SendWelcome(string email, string name);
+    public interface INotificationService 
+    {
+        void SendWelcome(string name, string email);
+    }
+
 }
