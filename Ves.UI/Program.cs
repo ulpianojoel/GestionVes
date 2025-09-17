@@ -5,8 +5,8 @@ using Ves.Services.Implementations;
 using Ves.Domain.Entities;
 
 // Connection strings for SQL Server 2019 instance
-const string businessCs = "Server=DESKTOP-B7V8BS2\\SQLEXPRESS;Database=VesDB;User Id=ves_user;Password=ves_password;TrustServerCertificate=True;";
-const string hashCs = "Server=DESKTOP-B7V8BS2\\SQLEXPRESS;Database=VesHashDB;User Id=hash_user;Password=hash_password;TrustServerCertificate=True;";
+const string businessCs = "Server=DESKTOP-B7V8BS2\\SQLEXPRESS;Database=VesDB;User Id=test;Password=test;TrustServerCertificate=True;";
+const string hashCs = "Server=DESKTOP-B7V8BS2\\SQLEXPRESS;Database=VesHashDB;User Id=test;Password=test;TrustServerCertificate=True;";
 
 var factory = new SqlConnectionFactory(businessCs, hashCs);
 var clientRepo = new ClientRepository(factory);
