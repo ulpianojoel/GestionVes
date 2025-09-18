@@ -1,10 +1,12 @@
-<Project Sdk="Microsoft.NET.Sdk">
-  <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
-  </PropertyGroup>
-  <ItemGroup>
-    <ProjectReference Include="../Ves.Domain/Ves.Domain.csproj" />
-    <ProjectReference Include="../Ves.DAL/Ves.DAL.csproj" />
-    <ProjectReference Include="../Ves.Services/Ves.Services.csproj" />
-  </ItemGroup>
+﻿<Project Sdk="Microsoft.NET.Sdk">
+	<PropertyGroup>
+		<TargetFramework>net8.0</TargetFramework>
+		<Nullable>enable</Nullable>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<LangVersion>latest</LangVersion>
+	</PropertyGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\Ves.DAL\Ves.DAL.csproj" />
+		<ProjectReference Include="..\Ves.Domain\Ves.Domain.csproj" />
+	</ItemGroup>
 </Project>

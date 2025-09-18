@@ -1,0 +1,237 @@
+﻿# make-winforms.ps1
+param(
+  [string]$UiProjName = "Ves.UI.WinForms",
+  [string]$Framework = "net8.0-windows"
+)
+
+function Write-Text {
+  param([string]$Path, [string]$Content)
+  $dir = Split-Path -Parent $Path
+  if (-not (Test-Path $dir)) { New-Item -ItemType Directory -Force -Path $dir | Out-Null }
+  $utf8NoBom = New-Object System.Text.UTF8Encoding($false)
+  [System.IO.File]::WriteAllText($Path, $Content, $utf8NoBom)
+  Write-Host "  - wrote $Path"
+}
+
+# 0) SLN
+$solution = Get-ChildItem -Filter *.sln | Select-Object -First 1
+if (-not $solution) {
+  Write-Host "No se encontró una .sln en la carpeta actual. Creando 'Ves.sln'..."
+  dotnet new sln -n Ves | Out-Null
+  $solution = Get-ChildItem -Filter *.sln | Select-Object -First 1
+}
+
+# 1) Crear WinForms si no existe
+$projDir = Join-Path (Get-Location) $UiProjName
+$projFile = Join-Path $projDir "$UiProjName.csproj"
+
+if (-not (Test-Path $projFile)) {
+  Write-Host "Creando proyecto WinForms: $UiProjName ($Framework)..."
+  dotnet new winforms -n $UiProjName -f $Framework | Out-Null
+  dotnet sln $solution add $projFile | Out-Null
+} else {
+  Write-Host "Proyecto $UiProjName ya existe. Continuando…"
+}
+
+# 2) Referencias a capas (si existen)
+$refs = @("Ves.BLL","Ves.DAL","Ves.Services","Ves.Domain")
+foreach ($r in $refs) {
+  $rProj = Get-ChildItem -Recurse -Filter "$r.csproj" -ErrorAction SilentlyContinue | Select-Object -First 1
+  if ($rProj) {
+    Write-Host "Agregando referencia a $r ..."
+    dotnet add $projFile reference $rProj.FullName | Out-Null
+  }
+}
+
+# 3) Program.cs -> arranca LoginForm
+$ProgramCs = @"
+using System;
+using System.Windows.Forms;
+
+namespace Ves.UI.WinForms
+{
+    internal static class Program
+    {
+        [STAThread]
+        static void Main()
+        {
+            ApplicationConfiguration.Initialize();
+            Application.Run(new LoginForm());
+        }
+    }
+}
+"@
+Write-Text (Join-Path $projDir "Program.cs") $ProgramCs
+
+# 4) Formularios
+
+$LoginForm = @"
+using System;
+using System.Drawing;
+using System.Windows.Forms;
+
+namespace Ves.UI.WinForms;
+
+public class LoginForm : Form
+{
+    private TextBox txtEmail = new() { Width = 220, PlaceholderText = "email" };
+    private TextBox txtPassword = new() { Width = 220, UseSystemPasswordChar = true, PlaceholderText = "password" };
+    private Button btnLogin = new() { Text = "Ingresar", Width = 220 };
+
+    public LoginForm()
+    {
+        Text = "VES - Login";
+        FormBorderStyle = FormBorderStyle.FixedDialog;
+        MaximizeBox = false;
+        StartPosition = FormStartPosition.CenterScreen;
+        ClientSize = new Size(330, 180);
+
+        var lbl1 = new Label { Text = "Email", AutoSize = true, Top = 25, Left = 20 };
+        var lbl2 = new Label { Text = "Password", AutoSize = true, Top = 70, Left = 20 };
+
+        txtEmail.Top = 20;   txtEmail.Left = 100;
+        txtPassword.Top = 65; txtPassword.Left = 100;
+        btnLogin.Top = 110;  btnLogin.Left = 100;
+
+        Controls.AddRange(new Control[]{ lbl1, txtEmail, lbl2, txtPassword, btnLogin });
+        btnLogin.Click += btnLogin_Click;
+        AcceptButton = btnLogin;
+    }
+
+    private void btnLogin_Click(object? sender, EventArgs e)
+    {
+        // TODO: reemplazar por validación real (SQL / Services)
+        if (txtEmail.Text.Trim().Length > 0 && txtPassword.Text.Length > 0)
+        {
+            var main = new MainForm();
+            main.Show();
+            Hide();
+        }
+        else
+        {
+            MessageBox.Show("Ingrese credenciales.");
+        }
+    }
+}
+"@
+Write-Text (Join-Path $projDir "LoginForm.cs") $LoginForm
+
+$MainForm = @"
+using System;
+using System.Drawing;
+using System.Windows.Forms;
+
+namespace Ves.UI.WinForms;
+
+public class MainForm : Form
+{
+    public MainForm()
+    {
+        Text = "VES - Menú principal";
+        StartPosition = FormStartPosition.CenterScreen;
+        ClientSize = new Size(460, 260);
+
+        var btnClientes  = new Button { Text = "Clientes",   Width = 180, Left = 40,  Top = 40 };
+        var btnProductos = new Button { Text = "Productos",  Width = 180, Left = 240, Top = 40 };
+        var btnHash      = new Button { Text = "Hashes",     Width = 180, Left = 40,  Top = 95 };
+        var btnReportes  = new Button { Text = "Reportes",   Width = 180, Left = 240, Top = 95 };
+
+        btnClientes.Click  += (_,__) => new ClientsForm().ShowDialog();
+        btnProductos.Click += (_,__) => new ProductsForm().ShowDialog();
+        btnHash.Click      += (_,__) => new HashForm().ShowDialog();
+        btnReportes.Click  += (_,__) => new ReportsForm().ShowDialog();
+
+        Controls.AddRange(new Control[]{ btnClientes, btnProductos, btnHash, btnReportes });
+    }
+}
+"@
+Write-Text (Join-Path $projDir "MainForm.cs") $MainForm
+
+$ClientsForm = @"
+using System.Windows.Forms;
+
+namespace Ves.UI.WinForms;
+
+public class ClientsForm : Form
+{
+    public ClientsForm()
+    {
+        Text = "VES - Clientes";
+        Width = 900; Height = 560;
+        StartPosition = FormStartPosition.CenterParent;
+
+        // TODO: Reemplazar por DataGridView + botones Agregar/Editar/Baja lógica
+        var lbl = new Label { Text = ""Acá va el ABM de Clientes"", Dock = DockStyle.Fill, TextAlign = System.Drawing.ContentAlignment.MiddleCenter };
+        Controls.Add(lbl);
+    }
+}
+"@
+Write-Text (Join-Path $projDir "ClientsForm.cs") $ClientsForm
+
+$ProductsForm = @"
+using System.Windows.Forms;
+
+namespace Ves.UI.WinForms;
+
+public class ProductsForm : Form
+{
+    public ProductsForm()
+    {
+        Text = ""VES - Productos"";
+        Width = 900; Height = 560;
+        StartPosition = FormStartPosition.CenterParent;
+
+        // TODO: Reemplazar por DataGridView + Alta/Editar/Baja lógica
+        var lbl = new Label { Text = ""Acá va el ABM de Productos"", Dock = DockStyle.Fill, TextAlign = System.Drawing.ContentAlignment.MiddleCenter };
+        Controls.Add(lbl);
+    }
+}
+"@
+Write-Text (Join-Path $projDir "ProductsForm.cs") $ProductsForm
+
+$HashForm = @"
+using System.Windows.Forms;
+
+namespace Ves.UI.WinForms;
+
+public class HashForm : Form
+{
+    public HashForm()
+    {
+        Text = ""VES - Hashes de archivos"";
+        Width = 900; Height = 560;
+        StartPosition = FormStartPosition.CenterParent;
+
+        // TODO: Seleccionar archivo -> calcular SHA256 -> guardar en VesHashDB -> Exportar a TXT
+        var lbl = new Label { Text = ""Acá va el flujo de Hash/Export"", Dock = DockStyle.Fill, TextAlign = System.Drawing.ContentAlignment.MiddleCenter };
+        Controls.Add(lbl);
+    }
+}
+"@
+Write-Text (Join-Path $projDir "HashForm.cs") $HashForm
+
+$ReportsForm = @"
+using System.Windows.Forms;
+
+namespace Ves.UI.WinForms;
+
+public class ReportsForm : Form
+{
+    public ReportsForm()
+    {
+        Text = ""VES - Reportes"";
+        Width = 900; Height = 560;
+        StartPosition = FormStartPosition.CenterParent;
+
+        // TODO: Filtro por fechas -> consulta a Ventas -> DataGridView + totales
+        var lbl = new Label { Text = ""Acá van los reportes"", Dock = DockStyle.Fill, TextAlign = System.Drawing.ContentAlignment.MiddleCenter };
+        Controls.Add(lbl);
+    }
+}
+"@
+Write-Text (Join-Path $projDir "ReportsForm.cs") $ReportsForm
+
+Write-Host ""
+Write-Host "✔ Listo. Para ejecutar:"
+Write-Host "    dotnet run --project `"$projFile`""
+Write-Host ""

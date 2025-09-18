@@ -1,28 +1,45 @@
-using Ves.DAL.Interfaces;
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
+using Microsoft.Data.SqlClient;
+using Ves.DAL.Config;
 using Ves.Domain.Entities;
-using Ves.Services.Interfaces;
 
 namespace Ves.BLL.Services
 {
     public class ClientService
     {
-        private readonly IClientRepository _repo;
-        private readonly INotificationService _notifier;
-        private readonly IAuditService _audit;
+        private readonly ISqlConnectionFactory _factory;
+        public ClientService(string cs) => _factory = new SqlConnectionFactory(cs);
 
-        public ClientService(IClientRepository repo, INotificationService notifier, IAuditService audit)
+        public async Task<IEnumerable<Cliente>> GetAllAsync()
         {
-            _repo = repo;
-            _notifier = notifier;
-            _audit = audit;
+            const string sql = "SELECT Id, Nombre, GETDATE() as FechaAlta, 1 as Activo FROM Clientes ORDER BY Id";
+            var list = new List<Cliente>();
+            using var cn = _factory.Create();
+            using var cmd = new SqlCommand(sql, cn);
+            await cn.OpenAsync();
+            using var rd = await cmd.ExecuteReaderAsync();
+            while (await rd.ReadAsync())
+            {
+                list.Add(new Cliente
+                {
+                    Id = rd.GetInt32(0),
+                    Nombre = rd.GetString(1),
+                    FechaAlta = System.DateTime.Now,
+                    Activo = true
+                });
+            }
+            return list;
         }
 
-        public int Register(Client client)
+        public async Task InsertAsync(Cliente c)
         {
-            var id = _repo.Insert(client);             // <-- antes: Add()
-            _notifier.SendWelcome(client.Name, client.Email);
-            _audit.Write("ClientRegistered", $"Client {client.Name} ({client.Email}) registered with id {id}");
-            return id;
+            const string sql = "INSERT INTO Clientes (Nombre, FechaAlta) VALUES (@n, GETDATE())";
+            using var cn = _factory.Create();
+            using var cmd = new SqlCommand(sql, cn);
+            cmd.Parameters.AddWithValue("@n", c.Nombre);
+            await cn.OpenAsync();
+            await cmd.ExecuteNonQueryAsync();
         }
     }
 }

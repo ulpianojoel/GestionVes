@@ -1,14 +1,16 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
-		<TargetFramework>net8.0</TargetFramework>
+		<OutputType>WinExe</OutputType>
+		<TargetFramework>net8.0-windows</TargetFramework>
+		<UseWindowsForms>true</UseWindowsForms>
+		<EnableWindowsTargeting>true</EnableWindowsTargeting>
 		<Nullable>enable</Nullable>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<LangVersion>latest</LangVersion>
 	</PropertyGroup>
 	<ItemGroup>
+		<ProjectReference Include="..\Ves.BLL\Ves.BLL.csproj" />
 		<ProjectReference Include="..\Ves.Domain\Ves.Domain.csproj" />
 	</ItemGroup>
-	<ItemGroup>
-		<PackageReference Include="Microsoft.Data.SqlClient" Version="5.2.2" />
-	</ItemGroup>
 </Project>
+

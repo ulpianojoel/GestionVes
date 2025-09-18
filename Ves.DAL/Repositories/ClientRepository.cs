@@ -1,26 +1,46 @@
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 using Microsoft.Data.SqlClient;
-using Ves.DAL.Interfaces;
 using Ves.Domain.Entities;
 
 namespace Ves.DAL.Repositories
 {
-    public class ClientRepository : IClientRepository
+    public class ClientRepository
     {
-        private readonly IDbConnectionFactory _factory;
+        private readonly string _cs;
+        public ClientRepository(string connectionString) => _cs = connectionString;
 
-        public ClientRepository(IDbConnectionFactory factory)
+        public async Task<IEnumerable<Cliente>> GetAllAsync()
         {
-            _factory = factory;
+            const string sql = "SELECT Id, Nombre, FechaAlta, 1 AS Activo FROM Clientes ORDER BY Id";
+            using var cn = new SqlConnection(_cs);
+            using var cmd = new SqlCommand(sql, cn);
+            await cn.OpenAsync();
+            using var rd = await cmd.ExecuteReaderAsync();
+
+            var list = new List<Cliente>();
+            while (await rd.ReadAsync())
+            {
+                list.Add(new Cliente
+                {
+                    Id = rd.GetInt32(0),
+                    Nombre = rd.GetString(1),
+                    FechaAlta = rd.GetDateTime(2),
+                    Activo = rd.GetInt32(3) == 1
+                });
+            }
+            return list;
         }
 
-        public int Insert(Client client)
+        public async Task InsertAsync(Cliente c)
         {
-            using SqlConnection conn = _factory.CreateOpenConnection();
-            using var cmd = new SqlCommand(
-                "INSERT INTO Clients (Name, Email) OUTPUT INSERTED.Id VALUES (@Name, @Email)", conn);
-            cmd.Parameters.AddWithValue("@Name", client.Name);
-            cmd.Parameters.AddWithValue("@Email", client.Email);
-            return (int)cmd.ExecuteScalar();
+            const string sql = "INSERT INTO Clientes (Nombre, FechaAlta) VALUES (@n,@f)";
+            using var cn = new SqlConnection(_cs);
+            using var cmd = new SqlCommand(sql, cn);
+            cmd.Parameters.AddWithValue("@n", c.Nombre);
+            cmd.Parameters.AddWithValue("@f", c.FechaAlta);
+            await cn.OpenAsync();
+            await cmd.ExecuteNonQueryAsync();
         }
     }
 }
